@@ -1,0 +1,76 @@
+buildscript {
+    ext.versions = [
+            'minSdk'                : 14,
+            'compileSdk'            : 28,
+
+            'androidPlugin'         : '4.1.2',
+            'codeQualityToolsPlugin': '0.20.0',
+
+            'androidSupport'        : '28.0.0',
+            'androidxTest'          : '1.3.0'
+    ]
+
+    repositories {
+        mavenCentral()
+        google()
+        jcenter()
+        gradlePluginPortal()
+    }
+
+    dependencies {
+        classpath "com.android.tools.build:gradle:${versions.androidPlugin}"
+        classpath "com.vanniktech:gradle-code-quality-tools-plugin:${versions.codeQualityToolsPlugin}"
+    }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: "com.vanniktech.code.quality.tools"
+
+repositories {
+    google()
+    jcenter()
+}
+
+dependencies {
+    implementation "com.android.support:support-annotations:${versions.androidSupport}"
+
+    androidTestImplementation "androidx.test:runner:${versions.androidxTest}"
+    androidTestImplementation "androidx.test:rules:${versions.androidxTest}"
+
+}
+
+android {
+    compileSdkVersion versions.compileSdk
+
+    defaultConfig {
+        minSdkVersion versions.minSdk
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
+        }
+    }
+}
+
+codeQualityTools {
+    htmlReports = true
+    ktlint.enabled = false
+    detekt.enabled = false
+    cpd.enabled = false
+    checkstyle {
+        configFile = 'conf/checkstyle.xml'
+    }
+    pmd {
+        version = '6.32.0'
+        ruleSetFile = 'conf/pmd.xml'
+    }
+}
+
