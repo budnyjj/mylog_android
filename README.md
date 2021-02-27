@@ -7,10 +7,21 @@ written in Java with performance in mind.
 # Rationale
 
 During the years of Android development I've defined a list of
-requirements that a good Android logger must meet:
- - allow to format messages like
+requirements that a good Android logger must meet (ordered by importance):
+1. Allow to format messages like
    ```
-<app process tag>: [<class tag>] <message that typically starts from function name>
+   <date> <pid> <tid> <log-level> <app process tag>: [<class tag>] <message that typically starts from function name>
    ```
- - be as fast as possible, i.e. don't make slow operations like
-   default Date formatting for each log record or use global locks
+2. Be simple enough to do not appear as a new source of mistakes
+   like message reordering, etc.
+3. Don't affect app performance in Release mode.
+4. Work reasonably fast in Debug mode, i.e. don't perform repetitive slow operations.
+5. Do not bring any new dependencies or resources into project.
+
+This is my attempt to implement a logger that meets these requirements.
+
+# TODO
+
+ - add additional stream output
+ - add unit and instrumentation tests
+ - publish to Maven
