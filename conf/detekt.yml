@@ -1,0 +1,135 @@
+build:
+  maxIssues: 200
+
+console-reports:
+  active: false
+
+comments:
+  active: true
+  CommentOverPrivateProperty:
+    active: false
+  CommentOverPrivateFunction:
+    active: false
+  UndocumentedPublicFunction:
+    active: false
+  UndocumentedPublicProperty:
+    active: false
+  UndocumentedPublicClass:
+    active: true
+    searchInNestedClass: false
+
+complexity:
+  ComplexInterface:
+    active: true
+    threshold: 15
+  ComplexMethod:
+    active: true
+    threshold: 64
+  LongMethod:
+    active: true
+    threshold: 64
+  LongParameterList:
+    active: true
+    threshold: 10
+    ignoreDefaultParameters: true
+  MethodOverloading:
+    active: true
+    threshold: 6
+  NestedBlockDepth:
+    active: true
+    threshold: 6
+  TooManyFunctions:
+    active: true
+    thresholdInFiles: 50
+    thresholdInClasses: 50
+    thresholdInInterfaces: 50
+    thresholdInObjects: 50
+    thresholdInEnums: 20
+    ignoreDeprecated: true
+    ignorePrivate: true
+    ignoreOverridden: false
+
+exceptions:
+  ReturnFromFinally:
+    active: true
+  ThrowingExceptionFromFinally:
+    active: true
+  ThrowingExceptionsWithoutMessageOrCause:
+    active: true
+    exceptions: 'IllegalArgumentException,IllegalStateException,IOException'
+  ThrowingNewInstanceOfSameException:
+    active: true
+  TooGenericExceptionCaught:
+    active: true
+    exceptionNames:
+      - Error
+      - Exception
+      - IllegalMonitorStateException
+      - NullPointerException
+      - RuntimeException
+      - Throwable
+    allowedExceptionNameRegex: "^(_|(ignore|expected).*)"
+
+formatting:
+  active: true
+  android: true
+  autoCorrect: false
+  FinalNewline:
+    active: false
+  ImportOrdering:
+    active: false
+  Indentation:
+    active: true
+    autoCorrect: true
+    indentSize: 4
+    continuationIndentSize: 4
+  MaximumLineLength:
+    active: true
+    maxLineLength: 120
+
+naming:
+  active: true
+  FunctionMinLength:
+    active: false
+  VariableNaming:
+    active: true
+    variablePattern: '([a-z][A-Za-z0-9]*)|([A-Z][_A-Z0-9]*)' #regular pattern | const pattern
+    privateVariablePattern: '((_)?[a-z][A-Za-z0-9]*)|([A-Z][_A-Z0-9]*)' #regular pattern | const pattern
+    excludeClassPattern: '$^'
+    ignoreOverridden: true
+
+performance:
+  active: true
+  ArrayPrimitive:
+    active: true
+
+potential-bugs:
+  active: true
+  LateinitUsage:
+    active: false
+  UselessPostfixExpression:
+    active: true
+
+style:
+  active: true
+  EqualsOnSignatureLine:
+    active: true
+  ExplicitItLambdaParameter:
+    active: true
+  ForbiddenComment:
+    active: false
+  MagicNumber:
+    active: true
+    ignoreNumbers: '-1,0,1,2'
+    ignoreEnums: true
+  MaxLineLength:
+    active: true
+    maxLineLength: 120
+    excludePackageStatements: true
+    excludeImportStatements: true
+  NewLineAtEndOfFile:
+    active: true
+  ReturnCount:
+    active: false
+  UnusedPrivateClass:
+    active: true

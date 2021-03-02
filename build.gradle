@@ -2,8 +2,10 @@ buildscript {
     ext.versions = [
             'minSdk'                : 14,
             'compileSdk'            : 28,
+            'ndk'                   : '21.1.6352462',
 
             'androidPlugin'         : '4.1.2',
+            'kotlinPlugin'          : '1.4.21',
             'codeQualityToolsPlugin': '0.20.0',
 
             'androidSupport'        : '28.0.0',
@@ -19,12 +21,14 @@ buildscript {
 
     dependencies {
         classpath "com.android.tools.build:gradle:${versions.androidPlugin}"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlinPlugin}"
         classpath "com.vanniktech:gradle-code-quality-tools-plugin:${versions.codeQualityToolsPlugin}"
     }
 }
 
 apply plugin: 'com.android.library'
-apply plugin: "com.vanniktech.code.quality.tools"
+apply plugin: 'kotlin-android'
+apply plugin: 'com.vanniktech.code.quality.tools'
 
 repositories {
     google()
@@ -41,10 +45,17 @@ dependencies {
 
 android {
     compileSdkVersion versions.compileSdk
+    ndkVersion versions.ndk
 
     defaultConfig {
         minSdkVersion versions.minSdk
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        externalNativeBuild {
+            cmake {
+                arguments '-DCMAKE_BUILD_TYPE=Release'
+                cppFlags '-std=c++17'
+            }
+        }
     }
 
     compileOptions {
@@ -58,12 +69,17 @@ android {
             proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
         }
     }
+
+    // TODO: build with optimizations in debug mode only
+    externalNativeBuild {
+        cmake {
+            path "src/debug/cpp/CMakeLists.txt"
+        }
+    }
 }
 
 codeQualityTools {
     htmlReports = true
-    ktlint.enabled = false
-    detekt.enabled = false
     cpd.enabled = false
     checkstyle {
         configFile = 'conf/checkstyle.xml'
@@ -71,6 +87,15 @@ codeQualityTools {
     pmd {
         version = '6.32.0'
         ruleSetFile = 'conf/pmd.xml'
+    }
+    detekt {
+        config = 'conf/detekt.yml'
+    }
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        freeCompilerArgs += '-Xno-param-assertions'
     }
 }
 
