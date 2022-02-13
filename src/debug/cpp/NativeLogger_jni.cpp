@@ -2,8 +2,9 @@
 
 #include <jni.h>
 
-#include "NativeLogger.hpp"
+#include "AndroidWriter.hpp"
 #include "utils/jni.hpp"
+#include "utils/log/log.hpp"
 
 
 using utf16_view = std::u16string_view;
@@ -16,8 +17,8 @@ Java_util_log_NativeLogger_nativeInit(
     jstring j_process_tag,
     jint j_log_file_descriptor
 ) {
-    NativeLogger::init(
-        JniStringGuard(j_env, j_process_tag).view(),
+    AndroidWriter::init(
+        JniStringGuard(j_env, j_process_tag).u8str(),
         j_log_file_descriptor);
 }
 
@@ -27,8 +28,8 @@ Java_util_log_NativeLogger_nativeCtor(
     jobject,
     jstring j_braced_class_tag
 ) {
-    return reinterpret_cast<jlong>(new NativeLogger(
-            JniStringGuard(j_env, j_braced_class_tag).view()));
+    return reinterpret_cast<jlong>(new AndroidWriter(
+            JniStringGuard(j_env, j_braced_class_tag).u8str()));
 }
 
 extern "C" JNIEXPORT void JNICALL
@@ -38,6 +39,8 @@ Java_util_log_NativeLogger_nativeD(
     jlong j_native_logger_ptr,
     jstring j_msg
 ) {
-    reinterpret_cast<const NativeLogger*>(j_native_logger_ptr)->d(
-        JniStringGuard(j_env, j_msg).view());
+    log::Logger(
+        log::Level::DEBUG,
+        *reinterpret_cast<const AndroidWriter*>(j_native_logger_ptr)
+    ) << JniStringGuard(j_env, j_msg).u8str();
 }

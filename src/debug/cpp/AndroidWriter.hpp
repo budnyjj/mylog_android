@@ -11,7 +11,6 @@
 #include <codecvt>
 #include <cstdio>
 #include <cstring>
-#include <locale>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -22,20 +21,17 @@
 
 #include <android/log.h>
 
+#include "utils/log/log.hpp"
+
 
 using std::lock_guard;
 using std::size_t;
 
-// Converts UTF-16 to UTF-8 (to_bytes) and vice-versa (from_bytes)
-using utf16_utf8_converter =
-    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>;
-using utf16_view = std::u16string_view;
 
-
-struct NativeLogger {
+struct AndroidWriter : public log::Writer {
 
     /**
-     * Performs static logger initialization.
+     * Performs static writer initialization.
      *
      * NOTE: this method should be invoked very first once per process.
      *
@@ -44,18 +40,17 @@ struct NativeLogger {
      *                              a negative value if there is no one
      */
     static void init(
-        const utf16_view process_tag,
+        const std::string process_tag,
         const int32_t log_file_descriptor
     ) {
         // set process tag first as it is used by |logcatFatal|
-        s_process_tag = s_utf_converter.to_bytes(
-            process_tag.cbegin(), process_tag.cend());
+        s_process_tag = process_tag;
         // open additional file
         if (log_file_descriptor < 0) {
             s_log_file = nullptr;
         } else if ((s_log_file = fdopen(log_file_descriptor, "w")) == nullptr) {
             logcatFatal(
-                "[NativeLogger] init: failed to open file descriptor %d: %s",
+                "[AndroidWriter] init: failed to open file descriptor %d: %s",
                 log_file_descriptor,
                 std::strerror(errno)
             );
@@ -63,16 +58,32 @@ struct NativeLogger {
         }
     }
 
-    explicit NativeLogger(const utf16_view braced_class_tag)
-     : m_braced_class_tag(s_utf_converter.to_bytes(
-             braced_class_tag.cbegin(), braced_class_tag.cend())),
+    explicit AndroidWriter(const std::string braced_class_tag)
+     : m_braced_class_tag(braced_class_tag),
        m_write_mtx()
     {}
 
-    void d(const utf16_view msg_utf16) const {
-        const auto msg_utf8 =
-            s_utf_converter.to_bytes(msg_utf16.cbegin(), msg_utf16.cend());
-        write(ANDROID_LOG_DEBUG, 'D', msg_utf8);
+    void write(const log::Level lvl, const char* msg) const override {
+        switch(lvl) {
+            case log::Level::DEBUG:
+                write(ANDROID_LOG_DEBUG, 'D', msg);
+                break;
+            case log::Level::INFO:
+                write(ANDROID_LOG_INFO, 'I', msg);
+                break;
+            case log::Level::WARN:
+                write(ANDROID_LOG_WARN, 'W', msg);
+                break;
+            case log::Level::ERROR:
+                write(ANDROID_LOG_ERROR, 'E', msg);
+                break;
+            case log::Level::FATAL:
+                write(ANDROID_LOG_FATAL, 'F', msg);
+                break;
+            default:
+                // TODO: implement
+                break;
+        }
     }
 
  private:
@@ -88,7 +99,6 @@ struct NativeLogger {
     /** Minimum length of place reserved by LogCat for process tag. */
     static constexpr size_t SZ_LOGCAT_TAG = 8;
 
-    static thread_local utf16_utf8_converter s_utf_converter;
     static thread_local std::vector<char> s_msg_buffer;
 
     static std::string s_process_tag;
@@ -251,7 +261,7 @@ struct NativeLogger {
             timeval tval;
             if (gettimeofday(&tval, nullptr) != 0) {
                 logcatFatal(
-                    "[NativeLogger] writeMixed: failed to get current time: %s",
+                    "[AndroidWriter] writeMixed: failed to get current time: %s",
                     std::strerror(errno)
                 );
             }
@@ -275,8 +285,8 @@ struct NativeLogger {
     }
 };
 
-thread_local utf16_utf8_converter NativeLogger::s_utf_converter;
-thread_local std::vector<char> NativeLogger::s_msg_buffer;
 
-std::string NativeLogger::s_process_tag;
-std::FILE* NativeLogger::s_log_file;
+thread_local std::vector<char> AndroidWriter::s_msg_buffer;
+
+std::string AndroidWriter::s_process_tag;
+std::FILE* AndroidWriter::s_log_file;

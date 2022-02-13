@@ -1,11 +1,14 @@
+#pragma once
+
+#include <locale>
+
 #include <jni.h>
-
-
-using utf16_view = std::u16string_view;
 
 
 // TODO: document, forbid copy and heap allocation
 struct JniStringGuard {
+
+    using utf16_view = std::u16string_view;
 
     static_assert(
         sizeof(char16_t) == sizeof(uint16_t),
@@ -19,16 +22,20 @@ struct JniStringGuard {
            j_env->GetStringLength(j_string))
     {}
 
-    const utf16_view view() const {
+    const utf16_view u16view() const {
         return m_view;
     }
 
-    const char16_t* chars() const {
+    const char16_t* u16chars() const {
         return m_view.data();
     }
 
-    const size_t size() const {
+    const size_t u16size() const {
         return m_view.size();
+    }
+
+    const std::string u8str() const {
+        return s_utf_converter.to_bytes(m_view.cbegin(), m_view.cend());
     }
 
     ~JniStringGuard() {
@@ -38,8 +45,17 @@ struct JniStringGuard {
     }
 
  private:
+    // Converts UTF-16 to UTF-8 (to_bytes) and vice-versa (from_bytes)
+    using utf16_utf8_converter =
+        std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>;
+
+    static thread_local utf16_utf8_converter s_utf_converter;
+
     const jstring m_j_string;
     const utf16_view m_view;
 
     JNIEnv* m_j_env;
 };
+
+
+thread_local JniStringGuard::utf16_utf8_converter JniStringGuard::s_utf_converter;
