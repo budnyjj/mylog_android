@@ -12,7 +12,8 @@ struct JniStringGuard {
 
     static_assert(
         sizeof(char16_t) == sizeof(uint16_t),
-        "JniStringGuard: require char16_t to store exactly 16 bits");
+        "JniStringGuard: require char16_t to store exactly 16 bits"
+    );
 
     explicit JniStringGuard(JNIEnv* j_env, jstring j_string)
      : m_j_env(j_env),
@@ -20,6 +21,15 @@ struct JniStringGuard {
        m_view(
            reinterpret_cast<const char16_t*>(j_env->GetStringChars(j_string, nullptr)),
            j_env->GetStringLength(j_string))
+    {}
+
+    explicit JniStringGuard(JNIEnv* j_env, jstring j_string, jint j_string_length)
+     : m_j_env(j_env),
+       m_j_string(j_string),
+       m_view(
+           reinterpret_cast<const char16_t*>(j_env->GetStringChars(j_string, nullptr)),
+           j_string_length
+       )
     {}
 
     const utf16_view u16view() const {

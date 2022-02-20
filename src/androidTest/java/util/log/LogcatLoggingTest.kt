@@ -14,11 +14,11 @@ class LogcatLoggingTest {
     fun singleThreadPerformance() {
         val startBaselineLogTimeMs = System.currentTimeMillis()
         for (i in 0 until TestUtils.NUM_REPS_PERFORMANCE) {
-            Log.d(TestUtils.PROCESS_TAG, "singleThreadPerformance: $i")
+            Log.d(TestUtils.PROCESS_TAG, "singleThreadPerformance")
         }
         val baselineLogDurationMs = System.currentTimeMillis() - startBaselineLogTimeMs
         for (i in 0 until TestUtils.NUM_REPS_PERFORMANCE) {
-            L.d("singleThreadPerformance: $i")
+            L.d("singleThreadPerformance")
         }
         val myLogDurationMs = System.currentTimeMillis() - startBaselineLogTimeMs - baselineLogDurationMs
         val maxLogDurationMs = (baselineLogDurationMs * PERF_SLOWDOWN_FRACTION).toLong()
@@ -53,7 +53,7 @@ class LogcatLoggingTest {
     companion object {
 
         /** Allow my logger to be up to 5% slower in logcat-only mode.  */
-        private const val PERF_SLOWDOWN_FRACTION = 0.8
+        private const val PERF_SLOWDOWN_FRACTION = 1.0
 
         private val L = Logging.getLogger(LogcatLoggingTest::class.java)
 

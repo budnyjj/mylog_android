@@ -37,10 +37,10 @@ Java_util_log_NativeLogger_nativeD(
     JNIEnv* j_env,
     jobject,
     jlong j_native_logger_ptr,
-    jstring j_msg
+    jstring j_msg,
+    jint j_msg_length
 ) {
-    log::Logger(
-        log::Level::DEBUG,
+    log::Logger<AndroidWriter, log::Level::DEBUG>(
         *reinterpret_cast<const AndroidWriter*>(j_native_logger_ptr)
-    ) << JniStringGuard(j_env, j_msg).u8str();
+    ) << JniStringGuard(j_env, j_msg, j_msg_length).u8str();
 }

@@ -13,7 +13,7 @@ final class TestUtils {
     public static final int NUM_REPS_VERIFICATION = 10;
 
     /** Number of repetitions in performance tests. */
-    public static final int NUM_REPS_PERFORMANCE = 500_000;
+    public static final int NUM_REPS_PERFORMANCE = 10_000_000;
 
     public static final String MSG_PART_STRING = "{STRING PART}";
 

@@ -28,7 +28,7 @@ using std::lock_guard;
 using std::size_t;
 
 
-struct AndroidWriter : public log::Writer {
+struct AndroidWriter : public log::Writer<AndroidWriter> {
 
     /**
      * Performs static writer initialization.
@@ -63,27 +63,9 @@ struct AndroidWriter : public log::Writer {
        m_write_mtx()
     {}
 
-    void write(const log::Level lvl, const char* msg) const override {
-        switch(lvl) {
-            case log::Level::DEBUG:
-                write(ANDROID_LOG_DEBUG, 'D', msg);
-                break;
-            case log::Level::INFO:
-                write(ANDROID_LOG_INFO, 'I', msg);
-                break;
-            case log::Level::WARN:
-                write(ANDROID_LOG_WARN, 'W', msg);
-                break;
-            case log::Level::ERROR:
-                write(ANDROID_LOG_ERROR, 'E', msg);
-                break;
-            case log::Level::FATAL:
-                write(ANDROID_LOG_FATAL, 'F', msg);
-                break;
-            default:
-                // TODO: implement
-                break;
-        }
+    template<log::Level Lvl>
+    void write(const std::string_view msg) const {
+        // TODO: implement
     }
 
  private:
@@ -107,6 +89,7 @@ struct AndroidWriter : public log::Writer {
     const std::string m_braced_class_tag;
 
     mutable std::mutex m_write_mtx;
+
 
     // TODO: document
     static void formatLastDigits(
@@ -233,7 +216,7 @@ struct AndroidWriter : public log::Writer {
     void write(
         const int prio,
         const char prio_char,
-        const std::string& msg
+        const std::string_view msg
     ) const {
         const auto msg_size = msg.size();
         char* buffer_ptr;
@@ -290,3 +273,29 @@ thread_local std::vector<char> AndroidWriter::s_msg_buffer;
 
 std::string AndroidWriter::s_process_tag;
 std::FILE* AndroidWriter::s_log_file;
+
+
+template<>
+void AndroidWriter::write<log::Level::DEBUG>(const std::string_view msg) const {
+    write(ANDROID_LOG_DEBUG, 'D', msg);
+}
+
+template<>
+void AndroidWriter::write<log::Level::INFO>(const std::string_view msg) const {
+    write(ANDROID_LOG_INFO, 'I', msg);
+}
+
+template<>
+void AndroidWriter::write<log::Level::WARN>(const std::string_view msg) const {
+    write(ANDROID_LOG_WARN, 'W', msg);
+}
+
+template<>
+void AndroidWriter::write<log::Level::ERROR>(const std::string_view msg) const {
+    write(ANDROID_LOG_ERROR, 'E', msg);
+}
+
+template<>
+void AndroidWriter::write<log::Level::FATAL>(const std::string_view msg) const {
+    write(ANDROID_LOG_ERROR, 'F', msg);
+}

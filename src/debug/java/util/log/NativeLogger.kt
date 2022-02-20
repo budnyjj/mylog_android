@@ -14,7 +14,7 @@ class NativeLogger internal constructor(bracedClassTag: String) {
 
     // fun v(msg: String) {}
 
-    fun d(msg: String) = nativeD(mNativeLoggerPtr, msg)
+    fun d(msg: String) = nativeD(mNativeLoggerPtr, msg, msg.length)
 
     // fun i(msg: String) {}
     //
@@ -26,7 +26,7 @@ class NativeLogger internal constructor(bracedClassTag: String) {
 
     private external fun nativeCtor(bracedClassTag: String): Long
 
-    private external fun nativeD(nativeLoggerPtr: Long, msg: String)
+    private external fun nativeD(nativeLoggerPtr: Long, msg: String, msgLength: Int)
 
     companion object {
 
