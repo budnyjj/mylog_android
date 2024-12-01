@@ -21,14 +21,14 @@
 
 #include <android/log.h>
 
-#include "utils/log/log.hpp"
+#include "mylog.hpp"
 
 
 using std::lock_guard;
 using std::size_t;
 
 
-struct AndroidWriter : public log::Writer<AndroidWriter> {
+struct AndroidWriter : public my::log::Writer<AndroidWriter> {
 
     /**
      * Performs static writer initialization.
@@ -63,8 +63,8 @@ struct AndroidWriter : public log::Writer<AndroidWriter> {
        m_write_mtx()
     {}
 
-    template<log::Level Lvl>
-    void write(const std::string_view msg) const {
+    template<my::log::Level Lvl>
+    void write(std::string_view msg) const {
         // TODO: implement
     }
 
@@ -214,9 +214,9 @@ struct AndroidWriter : public log::Writer<AndroidWriter> {
      *                  terminal delimiters
      */
     void write(
-        const int prio,
-        const char prio_char,
-        const std::string_view msg
+        int prio,
+        char prio_char,
+        std::string_view msg
     ) const {
         const auto msg_size = msg.size();
         char* buffer_ptr;
@@ -276,26 +276,26 @@ std::FILE* AndroidWriter::s_log_file;
 
 
 template<>
-void AndroidWriter::write<log::Level::DEBUG>(const std::string_view msg) const {
+void AndroidWriter::write<my::log::Level::DEBUG>(std::string_view msg) const {
     write(ANDROID_LOG_DEBUG, 'D', msg);
 }
 
 template<>
-void AndroidWriter::write<log::Level::INFO>(const std::string_view msg) const {
+void AndroidWriter::write<my::log::Level::INFO>(std::string_view msg) const {
     write(ANDROID_LOG_INFO, 'I', msg);
 }
 
 template<>
-void AndroidWriter::write<log::Level::WARN>(const std::string_view msg) const {
+void AndroidWriter::write<my::log::Level::WARN>(std::string_view msg) const {
     write(ANDROID_LOG_WARN, 'W', msg);
 }
 
 template<>
-void AndroidWriter::write<log::Level::ERROR>(const std::string_view msg) const {
+void AndroidWriter::write<my::log::Level::ERROR>(std::string_view msg) const {
     write(ANDROID_LOG_ERROR, 'E', msg);
 }
 
 template<>
-void AndroidWriter::write<log::Level::FATAL>(const std::string_view msg) const {
+void AndroidWriter::write<my::log::Level::FATAL>(std::string_view msg) const {
     write(ANDROID_LOG_ERROR, 'F', msg);
 }

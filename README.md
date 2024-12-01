@@ -1,8 +1,8 @@
 Android Logger
 ==============
 
-My own Android logger implementation with clean API
-written in Java with performance in mind.
+My own Android logger implementation with clean API written in Java with performance in mind.
+It is based on my C++ logger.
 
 # Rationale
 
@@ -22,6 +22,6 @@ This is my attempt to implement a logger that meets these requirements.
 
 # TODO
 
- - add additional stream output
+ - add native stream output to the android log
  - add unit and instrumentation tests
  - publish to Maven
